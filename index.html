@@ -1502,21 +1502,15 @@ const sortSelect = document.getElementById('sortSelect');
 let gridLimit = 6;
 let sortOrder = 'asc';   // du plus ancien au plus récent
 
-/* Convertit la date de publication "jj/mm/aaaa" en horodatage (null si absente/invalide) */
-function pubTime(s){
-  const m = (s.pubDate||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  return m ? new Date(+m[3], +m[2]-1, +m[1]).getTime() : null;
-}
-
 function visibleStories(){
   const list = STORIES.map((s,i)=>({s,i})).filter(o=>matchesSearch(o.s));
-  // Tri par date de PUBLICATION (jj/mm/aaaa). asc = du plus ancien au plus récent.
-  // Les témoignages sans date restent en fin de liste.
+  // Tri par ANNÉE du témoignage.
+  //   asc  = « Plus anciens d'abord »  → 2022, 2024, … 2026
+  //   desc = « Plus récents d'abord »  → 2026, … 2024, 2022
+  // À année égale, on garde l'ordre d'origine.
   list.sort((a,b)=>{
-    const ta = pubTime(a.s), tb = pubTime(b.s);
-    if(ta!==null && tb!==null) return sortOrder==='asc' ? (ta-tb) : (tb-ta);
-    if(ta!==null) return -1;
-    if(tb!==null) return 1;
+    const ya = a.s.year || 0, yb = b.s.year || 0;
+    if(ya !== yb) return sortOrder==='asc' ? (ya - yb) : (yb - ya);
     return a.i - b.i;
   });
   return list;
