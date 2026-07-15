@@ -981,6 +981,7 @@
       <div class="field">
         <label>Bénéficiaire de *</label>
         <div class="chips-select" id="tSupport">
+          <label class="chip-check"><input type="checkbox" name="support" value="Financement"><span>Financement</span></label>
           <label class="chip-check"><input type="checkbox" name="support" value="Formation"><span>Formation</span></label>
           <label class="chip-check"><input type="checkbox" name="support" value="Bazar"><span>Bazar</span></label>
           <label class="chip-check"><input type="checkbox" name="support" value="Rencontre solidaire"><span>Rencontre solidaire</span></label>
@@ -988,7 +989,9 @@
           <label class="chip-check"><input type="checkbox" name="support" value="Prix"><span>Prix</span></label>
           <label class="chip-check"><input type="checkbox" name="support" value="Assurance"><span>Assurance</span></label>
           <label class="chip-check"><input type="checkbox" name="support" value="Assistance"><span>Assistance</span></label>
+          <label class="chip-check"><input type="checkbox" name="support" value="Autres" id="tSupportAutres"><span>Autres</span></label>
         </div>
+        <input id="tSupportOther" name="supportOther" type="text" placeholder="À préciser" style="display:none;margin-top:8px" />
       </div>
       <div class="field">
         <label for="tQuote">Votre témoignage *</label>
@@ -1601,10 +1604,21 @@ map.once('click',()=>map.scrollWheelZoom.enable());
     videoFileName.textContent = videoFileInput.files[0] ? videoFileInput.files[0].name : '';
   });
 
+  // « Autres » : afficher le champ « À préciser » quand la case est cochée
+  const supportAutres = document.getElementById('tSupportAutres');
+  const supportOther  = document.getElementById('tSupportOther');
+  supportAutres.addEventListener('change', ()=>{
+    supportOther.style.display = supportAutres.checked ? '' : 'none';
+    if(!supportAutres.checked) supportOther.value = '';
+    if(supportAutres.checked) supportOther.focus();
+  });
+
   function openDrawer(){
     form.style.display = '';
     success.classList.remove('show');
     form.reset();
+    supportOther.style.display = 'none';   // masquer « À préciser » à l'ouverture
+    videoFileName.textContent = '';
     drawer.classList.add('open');
     overlay.classList.add('open');
     drawer.setAttribute('aria-hidden','false');
@@ -1644,7 +1658,13 @@ map.once('click',()=>map.scrollWheelZoom.enable());
   form.addEventListener('submit', e=>{
     e.preventDefault();
     const fd = new FormData(form);
-    const support = fd.getAll('support');   // sélection multiple (bénéficiaire de)
+    let support = fd.getAll('support');   // sélection multiple (bénéficiaire de)
+    // « Autres » → remplacer par le texte « À préciser » saisi par l'utilisateur
+    if(support.includes('Autres')){
+      const other = supportOther.value.trim();
+      support = support.filter(v => v !== 'Autres');
+      if(other) support.push(other);
+    }
     if(support.length === 0){
       alert('Merci de sélectionner au moins un type d\'appui (Bénéficiaire de).');
       return;
