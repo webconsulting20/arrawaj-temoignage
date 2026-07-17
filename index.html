@@ -1011,7 +1011,7 @@
     <div class="drawer-success" id="drawerSuccess">
       <div class="ok"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
       <h4>Merci pour votre témoignage !</h4>
-      <p>Votre histoire a bien été ajoutée. Elle apparaît dès maintenant sur la carte et dans la liste des histoires.</p>
+      <p>Votre témoignage a bien été envoyé. Il sera vérifié par la Fondation Arrawaj avant d'être publié sur la carte.</p>
     </div>
   </div>
 </aside>
@@ -1669,25 +1669,11 @@ map.once('click',()=>map.scrollWheelZoom.enable());
       alert('Merci de sélectionner au moins un type d\'appui (Bénéficiaire de).');
       return;
     }
-    const city = fd.get('city').trim();
-    const file = videoFileInput.files[0];
-    const localVideo = file ? URL.createObjectURL(file) : '';
-    const t = new Date();
-    const pubDate = `${String(t.getDate()).padStart(2,'0')}/${String(t.getMonth()+1).padStart(2,'0')}/${t.getFullYear()}`;
-    const story = {
-      name:    fd.get('name').trim(),
-      ar:      '',
-      city:    city,
-      coords:  cityCoords(city),
-      project: fd.get('project').trim(),
-      support: support,
-      year:    nowYear,
-      pubDate: pubDate,
-      quote:   fd.get('quote').trim(),
-      video:   (fd.get('video') || '').trim(),
-      localVideo: localVideo
-    };
-    addStory(story);
+    // IMPORTANT — Les témoignages soumis par les visiteurs ne sont PAS publiés
+    // automatiquement sur la carte : ils doivent d'abord être vérifiés par la
+    // Fondation Arrawaj. En l'absence de back-office (phase test), on se contente
+    // d'afficher le message de confirmation. Le branchement vers le back-office
+    // (enregistrement en « attente de validation ») se fera plus tard.
     form.style.display = 'none';
     success.classList.add('show');
   });
