@@ -16,6 +16,15 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+<!-- Configuration carte & API -->
+<script>
+  window.ARRAWAJ_CONFIG = window.ARRAWAJ_CONFIG || {
+    // Clé API CARTO (optionnelle - gratuite sur carto.com/basemaps/apikey).
+    // Si laissée vide, la carte utilise automatiquement un fond propre OpenStreetMap sans filigrane.
+    CARTO_API_KEY: ""
+  };
+</script>
+
 <style>
   :root{
     --green-50:#EAF7EE;
@@ -1189,11 +1198,30 @@ const map = L.map('map', {
   worldCopyJump:true,
 });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
-  attribution:'&copy; OpenStreetMap · CARTO',
-  maxZoom:19,
-  subdomains:'abcd'
-}).addTo(map);
+/* Fond de carte :
+   - Si une clé CARTO_API_KEY est configurée (dans ARRAWAJ_CONFIG ou ?carto_key=...),
+     on charge CARTO Voyager avec cette clé.
+   - Sinon, chargement automatique d'un fond OpenStreetMap propre, rapide,
+     100 % gratuit et sans filigrane d'expiration. */
+const cartoApiKey = (
+  (typeof window.ARRAWAJ_CONFIG !== 'undefined' && window.ARRAWAJ_CONFIG.CARTO_API_KEY) ||
+  new URLSearchParams(window.location.search).get('carto_key') ||
+  ''
+).trim();
+
+if (cartoApiKey) {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=' + encodeURIComponent(cartoApiKey), {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+    maxZoom: 19,
+    subdomains: 'abcd'
+  }).addTo(map);
+} else {
+  L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &middot; <a href="https://openstreetmap.fr" target="_blank" rel="noopener">OSM France</a>',
+    maxZoom: 19,
+    subdomains: 'abc'
+  }).addTo(map);
+}
 
 /* ====== PROFESSION ICONS ====== */
 function getProfessionIcon(project){
